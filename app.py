@@ -102,7 +102,7 @@ html, body, .stApp {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 .prediction-name {
-    font-size: 3rem !important;
+    font-size: 2rem !important;
     font-weight: 700 !important;
     margin-bottom: 0.4rem;
 }
