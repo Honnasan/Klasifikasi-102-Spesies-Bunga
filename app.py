@@ -22,7 +22,7 @@ topk = 1
 with open('label_map.json', 'r') as f:
     class_names = json.load(f)
 
-model = models.mobilenet_v3(pretrained=False)
+model = models.mobilenet_v2(pretrained=False)
 model.classifier[1] = torch.nn.Linear(model.last_channel, 102)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model = model.to(device)
