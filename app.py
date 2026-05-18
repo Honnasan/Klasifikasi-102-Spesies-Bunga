@@ -46,7 +46,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ======= CSS yang Diperbarui =======
+# ======= CSS =======
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
@@ -115,15 +115,12 @@ html, body, .stApp {
     height: 100%;
     transition: width 0.6s ease;
 }
-
-/* Ubah warna st.info menjadi putih */
-.stAlert {
-    background-color: rgba(255,255,255,0.15) !important;
+.info-text {
     color: white !important;
-    border: none !important;
-}
-.stAlert p {
-    color: white !important;
+    font-size: 1.05rem;
+    text-align: center;
+    margin-top: 1rem;
+    opacity: 0.95;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -183,8 +180,12 @@ if image_source is not None:
             </div>
             """, unsafe_allow_html=True)
 
-        # Info dengan teks putih
-        st.info("💡 Model menampilkan spesies bunga dengan probabilitas tertinggi.")
+        # Teks info tanpa kotak (warna putih)
+        st.markdown("""
+        <p class="info-text">
+            💡 Model menampilkan spesies bunga dengan probabilitas tertinggi.
+        </p>
+        """, unsafe_allow_html=True)
 
 else:
     st.markdown("""
