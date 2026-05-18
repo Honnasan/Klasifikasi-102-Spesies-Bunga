@@ -315,7 +315,7 @@ st.markdown("""
 st.markdown("""
 <div class="main-header">
     <h1><span class="logo">🌸</span> Flower Classifier 102 🌸</h1>
-    <p>Upload a flower image and discover its species with our advanced MobileNetV2 model</p>
+    <p>Upload a flower image and discover its species with our advanced MobileNetV3 model</p>
 </div>
 """, unsafe_allow_html=True)
 
