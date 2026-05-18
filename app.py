@@ -34,10 +34,12 @@ transform_eval = transforms.Compose([
 # ======= Fungsi Prediksi =======
 def predict(image, model, topk=5):
     image_tensor = transform_eval(image).unsqueeze(0).to(device)
+
     with torch.no_grad():
         output = model(image_tensor)
         probabilities = F.softmax(output[0], dim=0)
         top_probs, top_classes = probabilities.topk(topk)
+
     return top_probs.cpu().numpy(), top_classes.cpu().numpy()
 
 # ======= Convert gambar ke base64 =======
@@ -55,62 +57,77 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ======= Custom CSS Responsif =======
-st.markdown("""
+# ======= Toggle Dark Mode =======
+dark_mode = st.toggle("🌙 Dark Mode")
+
+# ======= Warna Dinamis =======
+bg_gradient = (
+    "linear-gradient(135deg, #1e1e1e 0%, #2c2c2c 60%, #121212 100%)"
+    if dark_mode else
+    "linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 60%, #fff 100%)"
+)
+
+card_bg = "rgba(30,30,30,0.75)" if dark_mode else "rgba(255,255,255,0.75)"
+text_color = "#ffffff" if dark_mode else "#2c3e50"
+header_color = "#ff8fab" if dark_mode else "#f5576c"
+secondary_text = "#d6d6d6" if dark_mode else "#6c757d"
+
+# ======= Custom CSS =======
+st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
-    html, body, .stApp {
+    html, body, .stApp {{
         font-family: 'Montserrat', sans-serif !important;
-    }
+        color: {text_color};
+    }}
 
-    /* Gradient Background */
-    .stApp {
-        background: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 60%, #fff 100%) !important;
-    }
+    .stApp {{
+        background: {bg_gradient} !important;
+    }}
 
-    .main-header {
-        background: rgba(255,255,255,0.35);
+    .main-header {{
+        background: {card_bg};
         backdrop-filter: blur(10px);
         border-radius: 30px;
         margin-bottom: 2rem;
         text-align: center;
         box-shadow: 0 8px 32px rgba(0,0,0,0.15);
         padding: 2rem 1.5rem;
-    }
+    }}
 
-    .main-header h1 {
-        color: #f5576c;
+    .main-header h1 {{
+        color: {header_color};
         font-size: clamp(2rem, 5vw, 3rem);
         font-weight: 800;
         margin: 0;
-    }
+    }}
 
-    .main-header p {
-        color: #2c3e50;
+    .main-header p {{
+        color: {text_color};
         font-size: clamp(1rem, 3vw, 1.2rem);
         margin-top: 0.5rem;
-    }
+    }}
 
-    .upload-section {
-        background: rgba(255,255,255,0.6);
+    .upload-section {{
+        background: {card_bg};
         backdrop-filter: blur(8px);
         padding: 2rem 1.5rem;
         border-radius: 22px;
         text-align: center;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(248,165,194,0.1);
-    }
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }}
 
-    .image-container, .result-card {
-        background: rgba(255,255,255,0.75);
+    .image-container, .result-card {{
+        background: {card_bg};
         backdrop-filter: blur(6px);
         padding: 1.5rem;
         border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(248,165,194,0.12);
-    }
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }}
 
-    .framed-image {
+    .framed-image {{
         border: 6px solid;
         border-image: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 100%) 1;
         border-radius: 20px;
@@ -119,9 +136,9 @@ st.markdown("""
         width: 100%;
         max-height: 420px;
         object-fit: contain;
-    }
+    }}
 
-    .prediction-item {
+    .prediction-item {{
         background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
         color: white;
         padding: 1.1rem;
@@ -132,55 +149,69 @@ st.markdown("""
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
-    }
+    }}
 
-    .confidence-bar {
+    .confidence-bar {{
         background: rgba(255,255,255,0.3);
         height: 20px;
         border-radius: 10px;
         overflow: hidden;
         flex: 1;
         min-width: 120px;
-    }
+    }}
 
-    .confidence-fill {
+    .confidence-fill {{
         background: linear-gradient(90deg, #f8a5c2 0%, #4ECDC4 100%);
         height: 100%;
         transition: width 0.6s ease;
-    }
+    }}
 
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .stColumns [data-testid="column"] {
+    .stTabs [data-baseweb="tab"] {{
+        color: {text_color} !important;
+        font-weight: 600;
+        border-radius: 14px 14px 0 0;
+    }}
+
+    .stTabs [aria-selected="true"] {{
+        background: rgba(255,255,255,0.15) !important;
+        color: {header_color} !important;
+    }}
+
+    .stInfo {{
+        background-color: rgba(255,255,255,0.1) !important;
+        color: {text_color} !important;
+    }}
+
+    @media (max-width: 768px) {{
+        .stColumns [data-testid="column"] {{
             width: 100% !important;
             flex: 1 1 100% !important;
-        }
-        
-        .main-header, .upload-section, .image-container, .result-card {
-            padding: 1.5rem 1rem;
-        }
-        
-        .framed-image {
-            max-height: 320px;
-        }
-    }
+        }}
 
-    @media (max-width: 480px) {
-        .prediction-item {
+        .main-header, .upload-section, .image-container, .result-card {{
+            padding: 1.5rem 1rem;
+        }}
+
+        .framed-image {{
+            max-height: 320px;
+        }}
+    }}
+
+    @media (max-width: 480px) {{
+        .prediction-item {{
             flex-direction: column;
             align-items: flex-start;
             text-align: left;
-        }
-        
-        .confidence-bar {
-            width: 100%;
-        }
-    }
+        }}
 
-    /* Streamlit default improvements */
-    .stButton>button, .stFileUploader, .stCameraInput {
+        .confidence-bar {{
+            width: 100%;
+        }}
+    }}
+
+    .stButton>button, .stFileUploader, .stCameraInput {{
         width: 100%;
-    }
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -195,8 +226,13 @@ st.markdown("""
 # ======= Upload Section =======
 st.markdown("""
 <div class="upload-section">
-    <h3 style="color:#f5576c; margin-bottom:0.8rem;">📁 Unggah Gambar Bunga</h3>
-    <p style="color:#2c3e50;">Pilih file atau ambil foto langsung</p>
+    <h3 style="color:#f5576c; margin-bottom:0.8rem;">
+        📁 Unggah Gambar Bunga
+    </h3>
+
+    <p style="color:#2c3e50;">
+        Pilih file atau ambil foto langsung
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -221,53 +257,104 @@ image_source = uploaded_file if uploaded_file is not None else camera_photo
 
 # ======= Prediksi =======
 if image_source is not None:
+
     with st.spinner("🔍 Sedang menganalisis gambar bunga..."):
+
         img = Image.open(image_source).convert('RGB')
+
         probs, classes = predict(img, model, topk=topk)
-        labels = [class_names.get(str(cls + 1), f'class_{cls + 1}') for cls in classes]
+
+        labels = [
+            class_names.get(str(cls + 1), f'class_{cls + 1}')
+            for cls in classes
+        ]
 
     st.success("✅ Analisis selesai!")
 
-    # Layout Responsif
-    col1, col2 = st.columns([1, 1.2]) if st.session_state.get("is_desktop", True) else st.columns(1)
+    col1, col2 = st.columns([1, 1.2])
 
-    # Kolom Gambar
+    # ======= Kolom Gambar =======
     with col1:
-        st.markdown('<div class="image-container"><h4 style="color:#2c3e50;">📷 Gambar Anda</h4></div>', unsafe_allow_html=True)
+
+        st.markdown(
+            '<div class="image-container"><h4 style="color:#2c3e50;">📷 Gambar Anda</h4></div>',
+            unsafe_allow_html=True
+        )
+
         st.markdown(
             f'<img src="data:image/png;base64,{img_to_base64(img)}" class="framed-image">',
             unsafe_allow_html=True
         )
+
         if hasattr(image_source, 'name'):
             st.caption(f"📄 {image_source.name}")
 
-    # Kolom Hasil
+    # ======= Kolom Hasil =======
     with col2:
-        st.markdown('<div class="result-card"><h3 style="color:#2c3e50;">🎯 Hasil Prediksi</h3></div>', unsafe_allow_html=True)
-        
+
+        st.markdown(
+            '<div class="result-card"><h3 style="color:#2c3e50;">🎯 Hasil Prediksi</h3></div>',
+            unsafe_allow_html=True
+        )
+
         for i in range(topk):
+
             confidence = float(probs[i] * 100)
+
             st.markdown(f"""
             <div class="prediction-item">
+
                 <div style="flex:1;">
+
                     <strong>🌸 #{i+1} {labels[i]}</strong>
+
                     <div class="confidence-bar">
-                        <div class="confidence-fill" style="width:{confidence}%"></div>
+                        <div class="confidence-fill"
+                             style="width:{confidence}%">
+                        </div>
                     </div>
+
                 </div>
-                <div style="font-size:1.35rem; font-weight:bold; min-width:70px; text-align:right;">
+
+                <div style="
+                    font-size:1.35rem;
+                    font-weight:bold;
+                    min-width:70px;
+                    text-align:right;
+                ">
                     {confidence:.1f}%
                 </div>
+
             </div>
             """, unsafe_allow_html=True)
 
-        st.info("💡 Model menampilkan spesies dengan probabilitas tertinggi.")
+        st.info(
+            "💡 Model menampilkan spesies dengan probabilitas tertinggi."
+        )
 
+# ======= Placeholder =======
 else:
+
     st.markdown("""
-    <div style="text-align:center; padding:4rem 1rem; background:#f8f9fa; border-radius:20px; margin:2rem 0;">
-        <div style="font-size:5rem; margin-bottom:1rem;">🌸</div>
-        <h3>Siap mengidentifikasi bunga?</h3>
-        <p style="color:#6c757d;">Unggah gambar atau ambil foto di atas</p>
+    <div style="
+        text-align:center;
+        padding:4rem 1rem;
+        background:#f8f9fa;
+        border-radius:20px;
+        margin:2rem 0;
+    ">
+
+        <div style="font-size:5rem; margin-bottom:1rem;">
+            🌸
+        </div>
+
+        <h3>
+            Siap mengidentifikasi bunga?
+        </h3>
+
+        <p style="color:#6c757d;">
+            Unggah gambar atau ambil foto di atas
+        </p>
+
     </div>
     """, unsafe_allow_html=True)
