@@ -22,7 +22,7 @@ topk = 1
 with open('label_map.json', 'r') as f:
     class_names = json.load(f)
 
-model = models.mobilenet_v2(pretrained=False)
+model = models.mobilenet_v3(pretrained=False)
 model.classifier[1] = torch.nn.Linear(model.last_channel, 102)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model = model.to(device)
@@ -247,7 +247,7 @@ if image_source is not None:
             </div>
             """, unsafe_allow_html=True)
 
-        st.caption("Model: MobileNetV2 • Akurasi tinggi pada dataset Oxford Flowers 102")
+        st.caption("Model: MobileNetV3 • Akurasi tinggi pada dataset Oxford Flowers 102")
 
 else:
     st.markdown("""
