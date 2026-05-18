@@ -309,30 +309,20 @@ if image_source is not None:
 
     col1, col2 = st.columns([1, 1.2])
 
-    # ======= Kolom Gambar =======
-    with col1:
-
-        st.markdown("""
-        <div class="image-container">
-            <h4 style="color:#2b2d42;">
-                📷 Gambar Anda
-            </h4>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown(
-            f'''
-            <img
-                src="data:image/png;base64,{img_to_base64(img)}"
-                class="framed-image"
-            >
-            ''',
-            unsafe_allow_html=True
-        )
-
-        if hasattr(image_source, 'name'):
-
-            st.caption(f"📄 {image_source.name}")
+# ======= Kolom Gambar =======
+with col1:
+    st.markdown("""
+    <div class="image-container">
+        <h4 style="color:#2b2d42;">📷 Gambar Anda</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Cara yang lebih reliable
+    st.image(
+        img, 
+        use_column_width=True,
+        caption=image_source.name if hasattr(image_source, 'name') else None
+    )
 
     # ======= Kolom Hasil =======
     with col2:
