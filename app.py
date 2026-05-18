@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from PIL import Image
 import json
 import streamlit as st
-import io
 
 # ======= Konfigurasi =======
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -72,7 +71,7 @@ html, body, .stApp {
     font-weight: 800;
     margin: 0;
 }
-.upload-section, .image-container, .result-card {
+.image-container, .result-card {
     background: rgba(255,255,255,0.2);
     backdrop-filter: blur(10px);
     border-radius: 22px;
@@ -100,7 +99,7 @@ html, body, .stApp {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 .prediction-name {
-    font-size: 1.45rem !important;     /* Diperbesar */
+    font-size: 1.45rem !important;
     font-weight: 700 !important;
     margin-bottom: 0.4rem;
 }
@@ -115,6 +114,16 @@ html, body, .stApp {
     background: linear-gradient(90deg, #84a59d 0%, #52796f 100%);
     height: 100%;
     transition: width 0.6s ease;
+}
+
+/* Ubah warna st.info menjadi putih */
+.stAlert {
+    background-color: rgba(255,255,255,0.15) !important;
+    color: white !important;
+    border: none !important;
+}
+.stAlert p {
+    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -174,6 +183,7 @@ if image_source is not None:
             </div>
             """, unsafe_allow_html=True)
 
+        # Info dengan teks putih
         st.info("💡 Model menampilkan spesies bunga dengan probabilitas tertinggi.")
 
 else:
