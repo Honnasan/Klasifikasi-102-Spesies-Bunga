@@ -11,7 +11,7 @@ import io, base64
 
 # ======= Konfigurasi =======
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model_path = 'mobilenetv2_flowers102.pth'
+model_path = 'mobilenetv3large_flowers102.pth'
 topk = 1
 
 # ======= Load label map (misalnya dari label_map.json) =======
