@@ -1,3 +1,4 @@
+```python
 import os
 import torch
 import torchvision.transforms as transforms
@@ -111,13 +112,7 @@ html, body, .stApp {
 
 /* Upload Box */
 .upload-section {
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(10px);
-    border-radius: 22px;
-    padding: 2rem 1.5rem;
-    text-align: center;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    margin-bottom: 1rem;
 }
 
 /* Card */
@@ -220,6 +215,21 @@ html, body, .stApp {
     width: 100%;
 }
 
+/* Floating animation */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
 /* Mobile */
 @media (max-width: 768px) {
 
@@ -248,6 +258,7 @@ html, body, .stApp {
 st.markdown("""
 <div class="main-header">
     <h1>🌸 Klasifikasi Bunga 102 🌸</h1>
+
     <p>
         Unggah gambar bunga dan temukan spesiesnya
         menggunakan MobileNetV3
@@ -309,20 +320,30 @@ if image_source is not None:
 
     col1, col2 = st.columns([1, 1.2])
 
-# ======= Kolom Gambar =======
-with col1:
-    st.markdown("""
-    <div class="image-container">
-        <h4 style="color:#2b2d42;">📷 Gambar Anda</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Cara yang lebih reliable
-    st.image(
-        img, 
-        use_column_width=True,
-        caption=image_source.name if hasattr(image_source, 'name') else None
-    )
+    # ======= Kolom Gambar =======
+    with col1:
+
+        st.markdown("""
+        <div class="image-container">
+            <h4 style="color:#2b2d42;">
+                📷 Gambar Anda
+            </h4>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(
+            f'''
+            <img
+                src="data:image/png;base64,{img_to_base64(img)}"
+                class="framed-image"
+            >
+            ''',
+            unsafe_allow_html=True
+        )
+
+        if hasattr(image_source, 'name'):
+
+            st.caption(f"📄 {image_source.name}")
 
     # ======= Kolom Hasil =======
     with col2:
@@ -378,10 +399,46 @@ with col1:
 
 # ======= Placeholder =======
 else:
+
     st.markdown("""
-    <div style="text-align:center; padding:4rem 1rem; background:#f8f9fa; border-radius:20px; margin:2rem 0;">
-        <div style="font-size:5rem; margin-bottom:1rem;">🌸</div>
-        <h3 style="color:#2b2d42;">Siap mengidentifikasi bunga?</h3>
-        <p style="color:#444;">Unggah gambar atau ambil foto di atas</p>
+    <div style="
+        text-align:center;
+        padding:5rem 2rem;
+        background:rgba(255,255,255,0.12);
+        border-radius:28px;
+        margin:2rem 0;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    ">
+
+        <div style="
+            font-size:6rem;
+            margin-bottom:1rem;
+            animation: float 3s ease-in-out infinite;
+        ">
+            🌸
+        </div>
+
+        <h2 style="
+            color:#2b2d42;
+            margin-bottom:0.7rem;
+            font-weight:700;
+        ">
+            Selamat Datang 🌷
+        </h2>
+
+        <p style="
+            color:#555;
+            font-size:1.1rem;
+            max-width:500px;
+            margin:auto;
+            line-height:1.7;
+        ">
+            Unggah gambar bunga atau ambil foto secara langsung
+            untuk mulai mengidentifikasi spesies bunga menggunakan
+            model AI MobileNetV3.
+        </p>
+
     </div>
     """, unsafe_allow_html=True)
+```
