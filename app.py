@@ -188,15 +188,7 @@ st.markdown("""
 st.markdown("""
 <div class="main-header">
     <h1>🌸 Klasifikasi Bunga 102 🌸</h1>
-    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan MobileNetV2</p>
-</div>
-""", unsafe_allow_html=True)
-
-# ======= Upload Section =======
-st.markdown("""
-<div class="upload-section">
-    <h3 style="color:#f5576c; margin-bottom:0.8rem;">📁 Unggah Gambar Bunga</h3>
-    <p style="color:#2c3e50;">Pilih file atau ambil foto langsung</p>
+    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan MobileNetV3</p>
 </div>
 """, unsafe_allow_html=True)
 
