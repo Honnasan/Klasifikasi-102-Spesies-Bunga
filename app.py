@@ -4,7 +4,6 @@ import torchvision.transforms as transforms
 from torchvision import models
 import torch.nn.functional as F
 from PIL import Image
-import numpy as np
 import json
 import streamlit as st
 import io, base64
@@ -23,20 +22,24 @@ with open('label_map.json', 'r') as f:
     class_names = json.load(f)
 
 # ======= Load Model =======
-model = models.mobilenet_v2(pretrained=False)
-model.classifier[1] = torch.nn.Linear(model.last_channel, 102)
-model.load_state_dict(torch.load(model_path, map_location=device))
-model = model.to(device)
-model.eval()
+@st.cache_resource
+def load_model():
+    model = models.mobilenet_v2(pretrained=False)
+    model.classifier[1] = torch.nn.Linear(model.last_channel, 102)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model = model.to(device)
+    model.eval()
+    return model
 
-# ======= Transformasi gambar =======
+model = load_model()
+
+# ======= Transform =======
 transform_eval = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
 ])
 
-# ======= Fungsi Prediksi =======
-def predict(image, model, topk=5):
+def predict(image, model, topk=1):
     image_tensor = transform_eval(image).unsqueeze(0).to(device)
     with torch.no_grad():
         output = model(image_tensor)
@@ -44,234 +47,199 @@ def predict(image, model, topk=5):
         top_probs, top_classes = probabilities.topk(topk)
     return top_probs.cpu().numpy(), top_classes.cpu().numpy()
 
-# ======= Convert gambar ke base64 =======
 def img_to_base64(img):
     buf = io.BytesIO()
     img.save(buf, format='PNG')
-    byte_im = buf.getvalue()
-    return base64.b64encode(byte_im).decode()
+    return base64.b64encode(buf.getvalue()).decode()
 
-# ======= Konfigurasi Halaman =======
+# ======= Page Config =======
 st.set_page_config(
-    page_title="🌸 Klasifikasi Bunga",
+    page_title="🌸 Luxe Bloom | Klasifikasi Bunga",
     page_icon="🌸",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# ======= Custom CSS Responsif =======
+# ======= Custom CSS Mewah =======
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500;600&display=swap');
 
-    html, body, .stApp {
-        font-family: 'Montserrat', sans-serif !important;
-    }
-
-    /* Gradient Background */
     .stApp {
-        background: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 60%, #fff 100%) !important;
+        background: linear-gradient(135deg, #fff0f5 0%, #f8e1f0 40%, #e0f2fe 100%);
     }
 
     .main-header {
-        background: rgba(255,255,255,0.35);
-        backdrop-filter: blur(10px);
+        background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,240,255,0.85));
+        backdrop-filter: blur(12px);
         border-radius: 30px;
-        margin-bottom: 2rem;
+        padding: 3rem 2rem;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-        padding: 2rem 1.5rem;
+        box-shadow: 0 20px 60px rgba(245, 87, 108, 0.15);
+        border: 1px solid rgba(255,255,255,0.6);
+        margin-bottom: 2.5rem;
     }
 
     .main-header h1 {
-        color: #f5576c;
-        font-size: clamp(2rem, 5vw, 3rem);
-        font-weight: 800;
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 6vw, 4.2rem);
+        background: linear-gradient(90deg, #f5576c, #c44569);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin: 0;
+        letter-spacing: -2px;
     }
 
     .main-header p {
-        color: #2c3e50;
-        font-size: clamp(1rem, 3vw, 1.2rem);
-        margin-top: 0.5rem;
+        font-size: 1.25rem;
+        color: #5f4a6f;
+        margin-top: 1rem;
     }
 
-    .upload-section {
-        background: rgba(255,255,255,0.6);
-        backdrop-filter: blur(8px);
-        padding: 2rem 1.5rem;
-        border-radius: 22px;
-        text-align: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(248,165,194,0.1);
-    }
-
-    .image-container, .result-card {
-        background: rgba(255,255,255,0.75);
-        backdrop-filter: blur(6px);
-        padding: 1.5rem;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(248,165,194,0.12);
+    .glass-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        border-radius: 28px;
+        border: 1px solid rgba(255,255,255,0.6);
+        box-shadow: 0 15px 35px rgba(245, 87, 108, 0.12);
+        padding: 2rem;
     }
 
     .framed-image {
-        border: 6px solid;
-        border-image: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 100%) 1;
-        border-radius: 20px;
-        padding: 4px;
-        background: white;
-        width: 100%;
-        max-height: 420px;
-        object-fit: contain;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 8px solid white;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        transition: transform 0.4s ease;
+    }
+    .framed-image:hover {
+        transform: scale(1.03);
     }
 
     .prediction-item {
-        background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #ff6b9d, #c44569);
         color: white;
-        padding: 1.1rem;
-        border-radius: 16px;
-        margin: 0.8rem 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
+        padding: 1.4rem 1.8rem;
+        border-radius: 20px;
+        margin: 1rem 0;
+        box-shadow: 0 10px 25px rgba(196, 69, 105, 0.25);
+        transition: all 0.3s ease;
+    }
+    .prediction-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(196, 69, 105, 0.35);
     }
 
     .confidence-bar {
-        background: rgba(255,255,255,0.3);
-        height: 20px;
-        border-radius: 10px;
+        height: 22px;
+        background: rgba(255,255,255,0.25);
+        border-radius: 50px;
         overflow: hidden;
-        flex: 1;
-        min-width: 120px;
     }
-
     .confidence-fill {
-        background: linear-gradient(90deg, #f8a5c2 0%, #4ECDC4 100%);
         height: 100%;
-        transition: width 0.6s ease;
+        background: linear-gradient(90deg, #ffd93d, #ff6b9d);
+        box-shadow: 0 0 15px rgba(255, 217, 61, 0.6);
+        transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        .stColumns [data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-        }
-        
-        .main-header, .upload-section, .image-container, .result-card {
-            padding: 1.5rem 1rem;
-        }
-        
-        .framed-image {
-            max-height: 320px;
-        }
+    .stTabs [data-baseweb="tab"] {
+        font-weight: 600;
+        border-radius: 16px;
+        padding: 12px 24px;
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(90deg, #f5576c, #c44569) !important;
+        color: white !important;
     }
 
-    @media (max-width: 480px) {
-        .prediction-item {
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-        }
-        
-        .confidence-bar {
-            width: 100%;
-        }
+    /* Animasi */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
-    /* Streamlit default improvements */
-    .stButton>button, .stFileUploader, .stCameraInput {
-        width: 100%;
+    .animate {
+        animation: fadeInUp 0.8s ease forwards;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ======= Header =======
+# ======= Header Elegan =======
 st.markdown("""
 <div class="main-header">
-    <h1>🌸 Klasifikasi Bunga 102 🌸</h1>
-    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan MobileNetV2</p>
+    <h1>🌸 Luxe Bloom</h1>
+    <p>Identifikasi bunga dengan kecanggihan AI • Desain premium</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ======= Upload Section =======
-st.markdown("""
-<div class="upload-section">
-    <h3 style="color:#f5576c; margin-bottom:0.8rem;">📁 Unggah Gambar Bunga</h3>
-    <p style="color:#2c3e50;">Pilih file atau ambil foto langsung</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown('<div class="glass-card" style="text-align:center; margin-bottom:2rem;">', unsafe_allow_html=True)
+st.markdown("<h3 style='color:#c44569; margin-bottom:0.5rem;'>📸 Unggah Gambar Bunga Anda</h3>", unsafe_allow_html=True)
+st.markdown("<p style='color:#6b5b7e;'>Pilih foto atau ambil langsung dari kamera</p>", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-# ======= Tabs =======
-tab1, tab2 = st.tabs(["📁 Unggah File", "📷 Ambil Foto"])
+tab1, tab2 = st.tabs(["📁 Unggah dari Galeri", "📷 Ambil Foto Kamera"])
 
 with tab1:
-    uploaded_file = st.file_uploader(
-        "Pilih file gambar",
-        type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed"
-    )
+    uploaded_file = st.file_uploader("Pilih gambar", type=["jpg","jpeg","png"], label_visibility="collapsed")
 
 with tab2:
-    camera_photo = st.camera_input(
-        "Ambil foto bunga",
-        label_visibility="collapsed"
-    )
+    camera_photo = st.camera_input("Ambil foto", label_visibility="collapsed")
 
-# ======= Pilih sumber gambar =======
 image_source = uploaded_file if uploaded_file is not None else camera_photo
 
 # ======= Prediksi =======
 if image_source is not None:
-    with st.spinner("🔍 Sedang menganalisis gambar bunga..."):
+    with st.spinner("🌺 Sedang menganalisis dengan kecermatan tinggi..."):
         img = Image.open(image_source).convert('RGB')
         probs, classes = predict(img, model, topk=topk)
-        labels = [class_names.get(str(cls + 1), f'class_{cls + 1}') for cls in classes]
+        labels = [class_names.get(str(cls + 1), f'Unknown') for cls in classes]
 
-    st.success("✅ Analisis selesai!")
+    st.success("🎉 Analisis selesai dengan hasil yang indah!", icon="✨")
 
-    # Layout Responsif
-    col1, col2 = st.columns([1, 1.2]) if st.session_state.get("is_desktop", True) else st.columns(1)
+    col1, col2 = st.columns([1, 1.1])
 
-    # Kolom Gambar
     with col1:
-        st.markdown('<div class="image-container"><h4 style="color:#2c3e50;">📷 Gambar Anda</h4></div>', unsafe_allow_html=True)
+        st.markdown('<div class="glass-card animate">', unsafe_allow_html=True)
+        st.markdown("<h4 style='color:#5f4a6f; text-align:center;'>📷 Gambar Anda</h4>", unsafe_allow_html=True)
         st.markdown(
-            f'<img src="data:image/png;base64,{img_to_base64(img)}" class="framed-image">',
+            f'<img src="data:image/png;base64,{img_to_base64(img)}" class="framed-image" width="100%">',
             unsafe_allow_html=True
         )
-        if hasattr(image_source, 'name'):
-            st.caption(f"📄 {image_source.name}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # Kolom Hasil
     with col2:
-        st.markdown('<div class="result-card"><h3 style="color:#2c3e50;">🎯 Hasil Prediksi</h3></div>', unsafe_allow_html=True)
-        
+        st.markdown('<div class="glass-card animate">', unsafe_allow_html=True)
+        st.markdown("<h3 style='color:#c44569; text-align:center;'>🌸 Hasil Prediksi Premium</h3>", unsafe_allow_html=True)
+
         for i in range(topk):
             confidence = float(probs[i] * 100)
             st.markdown(f"""
             <div class="prediction-item">
-                <div style="flex:1;">
-                    <strong>🌸 #{i+1} {labels[i]}</strong>
-                    <div class="confidence-bar">
+                <div>
+                    <strong style="font-size:1.3rem;">#{i+1} {labels[i]}</strong>
+                    <div class="confidence-bar" style="margin-top:12px;">
                         <div class="confidence-fill" style="width:{confidence}%"></div>
                     </div>
                 </div>
-                <div style="font-size:1.35rem; font-weight:bold; min-width:70px; text-align:right;">
-                    {confidence:.1f}%
+                <div style="font-size:2rem; font-weight:700; margin-left:15px;">
+                    {confidence:.1f}<span style="font-size:1rem;">%</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-        st.info("💡 Model menampilkan spesies dengan probabilitas tertinggi.")
+        st.markdown("""
+        <div style="background:rgba(255,255,255,0.6); padding:1.2rem; border-radius:18px; margin-top:1.5rem; font-size:0.95rem;">
+            💎 Model ini dilatih khusus untuk mengenali 102 spesies bunga dengan akurasi tinggi.
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 else:
     st.markdown("""
-    <div style="text-align:center; padding:4rem 1rem; background:#f8f9fa; border-radius:20px; margin:2rem 0;">
-        <div style="font-size:5rem; margin-bottom:1rem;">🌸</div>
-        <h3>Siap mengidentifikasi bunga?</h3>
-        <p style="color:#6c757d;">Unggah gambar atau ambil foto di atas</p>
+    <div style="text-align:center; padding:5rem 1rem; background:rgba(255,255,255,0.7); border-radius:30px; margin:3rem 0;">
+        <div style="font-size:6.5rem; margin-bottom:1rem; opacity:0.9;">🌸</div>
+        <h2 style="color:#c44569;">Siap menjelajahi keindahan bunga?</h2>
+        <p style="color:#6b5b7e; font-size:1.1rem;">Unggah atau ambil foto bunga favorit Anda</p>
     </div>
     """, unsafe_allow_html=True)
