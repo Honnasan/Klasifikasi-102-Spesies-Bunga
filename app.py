@@ -1,4 +1,3 @@
-import os
 import torch
 import torchvision.transforms as transforms
 from torchvision import models
@@ -53,48 +52,49 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ======= Custom CSS Responsif =======
+# ======= Custom CSS - Green Theme + Responsif =======
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
     html, body, .stApp {
         font-family: 'Montserrat', sans-serif !important;
-        background: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 60%, #fff 100%) !important;
+        background: linear-gradient(135deg, #a8e6cf 0%, #d0f4e6 50%, #f0f9f4 100%) !important;
     }
 
     .main-header {
-        background: rgba(255,255,255,0.35);
-        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.75);
+        backdrop-filter: blur(12px);
         border-radius: 30px;
         margin-bottom: 2rem;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         padding: 2rem 1.5rem;
     }
 
     .main-header h1 {
-        color: #f5576c;
+        color: #2e8b57;
         font-size: clamp(2rem, 5vw, 3rem);
         font-weight: 800;
+        margin: 0;
     }
 
     .main-header p {
-        color: #2c3e50;
+        color: #1e5f4a;
         font-size: clamp(1rem, 3vw, 1.2rem);
     }
 
     .image-container, .result-card {
-        background: rgba(255,255,255,0.75);
-        backdrop-filter: blur(6px);
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(8px);
         padding: 1.5rem;
         border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(248,165,194,0.12);
+        box-shadow: 0 5px 20px rgba(46,139,87,0.1);
     }
 
     .framed-image {
         border: 6px solid;
-        border-image: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 100%) 1;
+        border-image: linear-gradient(135deg, #2e8b57 0%, #66cdaa 100%) 1;
         border-radius: 20px;
         padding: 4px;
         background: white;
@@ -104,7 +104,7 @@ st.markdown("""
     }
 
     .prediction-item {
-        background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(90deg, #2e8b57 0%, #66cdaa 100%);
         color: white;
         padding: 1.1rem;
         border-radius: 16px;
@@ -126,17 +126,20 @@ st.markdown("""
     }
 
     .confidence-fill {
-        background: linear-gradient(90deg, #f8a5c2 0%, #4ECDC4 100%);
+        background: linear-gradient(90deg, #a8e6cf 0%, #ffffff 100%);
         height: 100%;
     }
 
-    /* Responsive */
+    /* Responsive Design */
     @media (max-width: 768px) {
         .stColumns [data-testid="column"] {
             width: 100% !important;
         }
         .framed-image {
             max-height: 320px;
+        }
+        .main-header, .image-container, .result-card {
+            padding: 1.5rem 1rem;
         }
     }
 
@@ -160,7 +163,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ======= Tabs Upload (Langsung) =======
+# ======= Tabs Upload =======
 tab1, tab2 = st.tabs(["📁 Unggah File", "📷 Ambil Foto"])
 
 with tab1:
@@ -220,7 +223,7 @@ else:
     st.markdown("""
     <div style="text-align:center; padding:5rem 1rem; background:#f8f9fa; border-radius:20px; margin:2rem 0;">
         <div style="font-size:6rem; margin-bottom:1rem; opacity:0.7;">🌸</div>
-        <h3 style="color:#2c3e50;">Siap mengidentifikasi bunga?</h3>
-        <p style="color:#6c757d;">Silakan unggah gambar atau ambil foto di atas</p>
+        <h3 style="color:#2e8b57;">Siap mengidentifikasi bunga?</h3>
+        <p style="color:#1e5f4a;">Silakan unggah gambar atau ambil foto di atas</p>
     </div>
     """, unsafe_allow_html=True)
