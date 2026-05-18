@@ -46,7 +46,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ======= CSS =======
+# ======= CSS dengan Jarak Gambar =======
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
@@ -77,6 +77,9 @@ html, body, .stApp {
     border-radius: 22px;
     padding: 1.5rem;
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.image-container {
+    margin-bottom: 1.2rem !important;
 }
 .framed-image {
     border: 5px solid rgba(255,255,255,0.35);
@@ -119,7 +122,7 @@ html, body, .stApp {
     color: white !important;
     font-size: 1.05rem;
     text-align: center;
-    margin-top: 1rem;
+    margin-top: 1.2rem;
     opacity: 0.95;
 }
 </style>
@@ -158,7 +161,7 @@ if image_source is not None:
     col1, col2 = st.columns([1, 1.2])
 
     with col1:
-        st.markdown('<div class="image-container"><h4 style="color:#2b2d42;">📷 Gambar Anda</h4></div>', unsafe_allow_html=True)
+        st.markdown('<div class="image-container"><h4 style="color:#2b2d42; margin-bottom: 1rem;">📷 Gambar Anda</h4></div>', unsafe_allow_html=True)
         st.image(img, use_column_width=True)
 
     with col2:
@@ -180,7 +183,6 @@ if image_source is not None:
             </div>
             """, unsafe_allow_html=True)
 
-        # Teks info tanpa kotak (warna putih)
         st.markdown("""
         <p class="info-text">
             💡 Model menampilkan spesies bunga dengan probabilitas tertinggi.
