@@ -7,7 +7,6 @@ from PIL import Image
 import json
 import streamlit as st
 import io
-import base64
 
 # ======= Konfigurasi =======
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -48,7 +47,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ======= CSS =======
+# ======= CSS yang Diperbarui =======
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
@@ -92,7 +91,7 @@ html, body, .stApp {
 .prediction-item {
     background: linear-gradient(135deg, #5c5470 0%, #6d597a 100%);
     color: white;
-    padding: 1rem;
+    padding: 1.2rem;
     border-radius: 16px;
     margin: 0.8rem 0;
     display: flex;
@@ -100,12 +99,17 @@ html, body, .stApp {
     align-items: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+.prediction-name {
+    font-size: 1.45rem !important;     /* Diperbesar */
+    font-weight: 700 !important;
+    margin-bottom: 0.4rem;
+}
 .confidence-bar {
     background: rgba(255,255,255,0.2);
-    height: 18px;
+    height: 20px;
     border-radius: 10px;
     overflow: hidden;
-    margin-top: 0.5rem;
+    margin-top: 0.6rem;
 }
 .confidence-fill {
     background: linear-gradient(90deg, #84a59d 0%, #52796f 100%);
@@ -132,30 +136,25 @@ with tab1:
 with tab2:
     camera_photo = st.camera_input("Ambil foto bunga", label_visibility="collapsed")
 
-# ======= Pilih gambar =======
 image_source = uploaded_file if uploaded_file is not None else camera_photo
 
 # ======= Prediksi =======
 if image_source is not None:
     with st.spinner("🔍 Sedang menganalisis gambar bunga..."):
-        # Buka dan resize gambar
         img = Image.open(image_source).convert('RGB')
-        img.thumbnail((800, 800), Image.Resampling.LANCZOS)  # Resize agar tidak terlalu besar
+        img.thumbnail((800, 800), Image.Resampling.LANCZOS)
         
         probs, classes = predict(img, model, topk=topk)
-        
         labels = [class_names.get(str(cls + 1), f'class_{cls + 1}') for cls in classes]
 
     st.success("✅ Analisis selesai!")
 
     col1, col2 = st.columns([1, 1.2])
 
-    # Kolom Gambar
     with col1:
         st.markdown('<div class="image-container"><h4 style="color:#2b2d42;">📷 Gambar Anda</h4></div>', unsafe_allow_html=True)
         st.image(img, use_column_width=True)
 
-    # Kolom Hasil
     with col2:
         st.markdown('<div class="result-card"><h3 style="color:#2b2d42;">🎯 Hasil Prediksi</h3></div>', unsafe_allow_html=True)
         
@@ -164,12 +163,12 @@ if image_source is not None:
             st.markdown(f"""
             <div class="prediction-item">
                 <div style="flex:1;">
-                    <strong>🌸 #{i+1} {labels[i]}</strong>
+                    <div class="prediction-name">🌸 #{i+1} {labels[i]}</div>
                     <div class="confidence-bar">
                         <div class="confidence-fill" style="width:{confidence}%"></div>
                     </div>
                 </div>
-                <div style="font-size:1.3rem; font-weight:bold; min-width:75px; text-align:right;">
+                <div style="font-size:1.45rem; font-weight:bold; min-width:80px; text-align:right;">
                     {confidence:.1f}%
                 </div>
             </div>
