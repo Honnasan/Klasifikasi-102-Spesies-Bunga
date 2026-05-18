@@ -1,4 +1,3 @@
-```python
 import os
 import torch
 import torchvision.transforms as transforms
@@ -441,4 +440,3 @@ else:
 
     </div>
     """, unsafe_allow_html=True)
-```
