@@ -284,30 +284,6 @@ st.markdown("""
         color: #1a237e !important;
         font-weight: 700 !important;
     }
-    /* Footer */
-    .footer {
-        background: rgba(44,62,80,0.65);
-        color: #fff;
-        padding: 1.2rem 1rem 0.7rem 1rem;
-        border-radius: 14px;
-        text-align: center;
-        margin-top: 2.5rem;
-        font-size: 0.97rem;
-        box-shadow: 0 2px 8px rgba(44,62,80,0.10);
-        letter-spacing: 0.5px;
-    }
-    .footer p {
-        margin: 0;
-        opacity: 0.92;
-    }
-    /* Spasi antar elemen */
-    .stApp > div > div { margin-bottom: 1.2rem; }
-    @media (max-width: 768px) {
-        .main-header h1 { font-size: 2.1rem; }
-        .upload-section, .image-container, .result-card { padding: 1.2rem 0.7rem; }
-        .prediction-item { font-size: 1rem; }
-        .confidence-bar { width: 90px; height: 12px; }
-    }
 </style>
 """, unsafe_allow_html=True)
 
