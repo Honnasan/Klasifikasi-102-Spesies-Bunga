@@ -303,21 +303,9 @@ if image_source is not None:
 else:
 
     st.markdown("""
-    <div style="
-        text-align:center;
-        padding:3rem;
-        background:#f8f9fa;
-        border-radius:15px;
-        margin:2rem 0;
-    ">
-        <div style="font-size:4rem;">🌸</div>
-
-        <h3 style="color:#2c3e50;">
-            Siap mengidentifikasi bunga?
-        </h3>
-
-        <p style="color:#6c757d;">
-            Unggah gambar bunga di atas untuk memulai!
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+<div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 15px; margin: 2rem 0;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">🌸</div>
+    <h3 style="color: #2c3e50;">Siap mengidentifikasi bunga?</h3>
+    <p style="color: #6c757d;">Unggah gambar bunga di atas untuk memulai!</p>
+</div>
+""", unsafe_allow_html=True)
