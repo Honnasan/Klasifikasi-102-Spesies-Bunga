@@ -388,45 +388,44 @@ if image_source is not None:
 
 # ======= Placeholder =======
 else:
-
-st.markdown("""
-<div style="
-    text-align:center;
-    padding:5rem 2rem;
-    background:rgba(255,255,255,0.12);
-    border-radius:28px;
-    margin:2rem 0;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-">
-
-    <div style="
-        font-size:6rem;
-        margin-bottom:1rem;
-        animation: float 3s ease-in-out infinite;
+    st.markdown("""
+        <div style="
+        text-align:center;
+        padding:5rem 2rem;
+        background:rgba(255,255,255,0.12);
+        border-radius:28px;
+        margin:2rem 0;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     ">
-        🌸
+
+        <div style="
+            font-size:6rem;
+            margin-bottom:1rem;
+            animation: float 3s ease-in-out infinite;
+        ">
+            🌸
+        </div>
+
+        <h2 style="
+            color:#2b2d42;
+            margin-bottom:0.7rem;
+            font-weight:700;
+        ">
+            Selamat Datang 🌷
+        </h2>
+
+        <p style="
+            color:#555;
+            font-size:1.1rem;
+            max-width:500px;
+            margin:auto;
+            line-height:1.7;
+        ">
+            Unggah gambar bunga atau ambil foto secara langsung
+            untuk mulai mengidentifikasi spesies bunga menggunakan
+            model AI MobileNetV3.
+        </p>
+
     </div>
-
-    <h2 style="
-        color:#2b2d42;
-        margin-bottom:0.7rem;
-        font-weight:700;
-    ">
-        Selamat Datang 🌷
-    </h2>
-
-    <p style="
-        color:#555;
-        font-size:1.1rem;
-        max-width:500px;
-        margin:auto;
-        line-height:1.7;
-    ">
-        Unggah gambar bunga atau ambil foto secara langsung
-        untuk mulai mengidentifikasi spesies bunga menggunakan
-        model AI MobileNetV3.
-    </p>
-
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
