@@ -177,7 +177,7 @@ if image_source is not None:
                         <div class="confidence-fill" style="width:{confidence}%"></div>
                     </div>
                 </div>
-                <div style="font-size:1.45rem; font-weight:bold; min-width:80px; text-align:right;">
+                <div style="font-size:2rem; font-weight:bold; min-width:80px; text-align:right;">
                     {confidence:.1f}%
                 </div>
             </div>
