@@ -132,7 +132,7 @@ html, body, .stApp {
 st.markdown("""
 <div class="main-header">
     <h1>🌸 Klasifikasi Bunga 102 🌸</h1>
-    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan MobileNetV2</p>
+    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan MobileNetV3</p>
 </div>
 """, unsafe_allow_html=True)
 
