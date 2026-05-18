@@ -413,13 +413,3 @@ else:
         <p style="color: #6c757d;">Upload an image above to get started!</p>
     </div>
     """, unsafe_allow_html=True)
-
-# ======= Footer =======
-st.markdown("""
-<div class="footer">
-    <p style="margin: 0;">© 2025 Flower Classifier 102 | Built with ❤️ using Streamlit & PyTorch</p>
-    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">
-        Powered by MobileNetV2 | 102 Flower Classes Supported
-    </p>
-</div>
-""", unsafe_allow_html=True)
