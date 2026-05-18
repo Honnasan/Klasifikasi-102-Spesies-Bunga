@@ -255,6 +255,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# ======= Upload Section =======
+st.markdown("""
+<div class="upload-section">
+    <h3 style="color:#2b2d42;">
+        📁 Unggah Gambar Bunga
+    </h3>
+
+    <p style="color:#444;">
+        Pilih file atau ambil foto langsung
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
 # ======= Tabs =======
 tab1, tab2 = st.tabs([
     "📁 Unggah File",
@@ -383,10 +396,31 @@ if image_source is not None:
 
 # ======= Placeholder =======
 else:
+
     st.markdown("""
-    <div style="text-align:center; padding:4rem 1rem; background:#f8f9fa; border-radius:20px; margin:2rem 0;">
-        <div style="font-size:5rem; margin-bottom:1rem;">🌸</div>
-        <h3>Siap mengidentifikasi bunga?</h3>
-        <p style="color:#6c757d;">Unggah gambar atau ambil foto di atas</p>
+    <div style="
+        text-align:center;
+        padding:4rem 1rem;
+        background:rgba(255,255,255,0.15);
+        border-radius:20px;
+        margin:2rem 0;
+        backdrop-filter: blur(10px);
+    ">
+
+        <div style="
+            font-size:5rem;
+            margin-bottom:1rem;
+        ">
+            🌸
+        </div>
+
+        <h3 style="color:#2b2d42;">
+            Siap mengidentifikasi bunga?
+        </h3>
+
+        <p style="color:#444;">
+            Unggah gambar atau ambil foto di atas
+        </p>
+
     </div>
     """, unsafe_allow_html=True)
