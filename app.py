@@ -4,15 +4,10 @@ import torchvision.transforms as transforms
 from torchvision import models
 import torch.nn.functional as F
 from PIL import Image
-import numpy as np
 import json
 import streamlit as st
 import io, base64
 
-st.markdown('<meta name="viewport" content="width=device-width, initial-scale=1.0">', unsafe_allow_html=True)
-if "is_desktop" not in st.session_state:
-    st.session_state.is_desktop = True  # default
-    
 # ======= Konfigurasi =======
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_path = 'mobilenetv3large_flowers102.pth'
@@ -22,9 +17,13 @@ topk = 1
 with open('label_map.json', 'r') as f:
     class_names = json.load(f)
 
-# ======= Load Model =======
-model = models.mobilenet_v2(pretrained=False)
-model.classifier[1] = torch.nn.Linear(model.last_channel, 102)
+# ======= Load Model - MobileNetV3 Large =======
+model = models.mobilenet_v3_large(pretrained=False)
+
+# Sesuaikan classifier (MobileNetV3 menggunakan 'classifier' dengan Linear di index 3)
+in_features = model.classifier[3].in_features
+model.classifier[3] = torch.nn.Linear(in_features, 102)
+
 model.load_state_dict(torch.load(model_path, map_location=device))
 model = model.to(device)
 model.eval()
@@ -48,8 +47,7 @@ def predict(image, model, topk=5):
 def img_to_base64(img):
     buf = io.BytesIO()
     img.save(buf, format='PNG')
-    byte_im = buf.getvalue()
-    return base64.b64encode(byte_im).decode()
+    return base64.b64encode(buf.getvalue()).decode()
 
 # ======= Konfigurasi Halaman =======
 st.set_page_config(
@@ -64,13 +62,9 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
-    html, body, .stApp {
-        font-family: 'Montserrat', sans-serif !important;
-    }
-
-    /* Gradient Background */
     .stApp {
         background: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 60%, #fff 100%) !important;
+        font-family: 'Montserrat', sans-serif !important;
     }
 
     .main-header {
@@ -82,43 +76,29 @@ st.markdown("""
         box-shadow: 0 8px 32px rgba(0,0,0,0.15);
         padding: 2rem 1.5rem;
     }
-
     .main-header h1 {
         color: #f5576c;
         font-size: clamp(2rem, 5vw, 3rem);
         font-weight: 800;
-        margin: 0;
     }
-
     .main-header p {
         color: #2c3e50;
         font-size: clamp(1rem, 3vw, 1.2rem);
-        margin-top: 0.5rem;
     }
 
-    .upload-section {
-        background: rgba(255,255,255,0.6);
+    .upload-section, .image-container, .result-card {
+        background: rgba(255,255,255,0.7);
         backdrop-filter: blur(8px);
-        padding: 2rem 1.5rem;
+        padding: 1.8rem;
         border-radius: 22px;
-        text-align: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(248,165,194,0.1);
-    }
-
-    .image-container, .result-card {
-        background: rgba(255,255,255,0.75);
-        backdrop-filter: blur(6px);
-        padding: 1.5rem;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(248,165,194,0.12);
+        box-shadow: 0 10px 30px rgba(248,165,194,0.12);
     }
 
     .framed-image {
         border: 6px solid;
         border-image: linear-gradient(135deg, #f8a5c2 0%, #ffe0ef 100%) 1;
         border-radius: 20px;
-        padding: 4px;
+        padding: 5px;
         background: white;
         width: 100%;
         max-height: 420px;
@@ -128,7 +108,7 @@ st.markdown("""
     .prediction-item {
         background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
         color: white;
-        padding: 1.1rem;
+        padding: 1.2rem;
         border-radius: 16px;
         margin: 0.8rem 0;
         display: flex;
@@ -144,46 +124,23 @@ st.markdown("""
         border-radius: 10px;
         overflow: hidden;
         flex: 1;
-        min-width: 120px;
+        min-width: 140px;
     }
 
     .confidence-fill {
         background: linear-gradient(90deg, #f8a5c2 0%, #4ECDC4 100%);
         height: 100%;
-        transition: width 0.6s ease;
     }
 
-    /* Responsive Adjustments */
     @media (max-width: 768px) {
-        .stColumns [data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-        }
-        
-        .main-header, .upload-section, .image-container, .result-card {
-            padding: 1.5rem 1rem;
-        }
-        
-        .framed-image {
-            max-height: 320px;
-        }
+        .stColumns [data-testid="column"] { width: 100% !important; }
+        .framed-image { max-height: 320px; }
+        .upload-section, .image-container, .result-card { padding: 1.4rem 1rem; }
     }
 
     @media (max-width: 480px) {
-        .prediction-item {
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-        }
-        
-        .confidence-bar {
-            width: 100%;
-        }
-    }
-
-    /* Streamlit default improvements */
-    .stButton>button, .stFileUploader, .stCameraInput {
-        width: 100%;
+        .prediction-item { flex-direction: column; align-items: flex-start; }
+        .confidence-bar { width: 100%; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -192,35 +149,21 @@ st.markdown("""
 st.markdown("""
 <div class="main-header">
     <h1>🌸 Klasifikasi Bunga 102 🌸</h1>
-    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan MobileNetV2</p>
+    <p>Unggah gambar bunga dan temukan spesiesnya menggunakan <strong>MobileNetV3 Large</strong></p>
 </div>
 """, unsafe_allow_html=True)
 
 # ======= Upload Section =======
-st.markdown("""
-<div class="upload-section">
-    <h3 style="color:#f5576c; margin-bottom:0.8rem;">📁 Unggah Gambar Bunga</h3>
-    <p style="color:#2c3e50;">Pilih file atau ambil foto langsung</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown('<div class="upload-section"><h3 style="color:#f5576c;">📁 Unggah Gambar Bunga</h3></div>', unsafe_allow_html=True)
 
-# ======= Tabs =======
 tab1, tab2 = st.tabs(["📁 Unggah File", "📷 Ambil Foto"])
 
 with tab1:
-    uploaded_file = st.file_uploader(
-        "Pilih file gambar",
-        type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed"
-    )
+    uploaded_file = st.file_uploader("Pilih file gambar", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
 with tab2:
-    camera_photo = st.camera_input(
-        "Ambil foto bunga",
-        label_visibility="collapsed"
-    )
+    camera_photo = st.camera_input("Ambil foto bunga", label_visibility="collapsed")
 
-# ======= Pilih sumber gambar =======
 image_source = uploaded_file if uploaded_file is not None else camera_photo
 
 # ======= Prediksi =======
@@ -228,24 +171,17 @@ if image_source is not None:
     with st.spinner("🔍 Sedang menganalisis gambar bunga..."):
         img = Image.open(image_source).convert('RGB')
         probs, classes = predict(img, model, topk=topk)
-        labels = [class_names.get(str(cls + 1), f'class_{cls + 1}') for cls in classes]
+        
+        labels = [class_names.get(str(cls + 1), f'Class {cls + 1}') for cls in classes]
 
     st.success("✅ Analisis selesai!")
 
-    # Layout Responsif
-    col1, col2 = st.columns([1, 1.2]) if st.session_state.get("is_desktop", True) else st.columns(1)
+    col1, col2 = st.columns([1, 1.2])
 
-    # Kolom Gambar
     with col1:
         st.markdown('<div class="image-container"><h4 style="color:#2c3e50;">📷 Gambar Anda</h4></div>', unsafe_allow_html=True)
-        st.markdown(
-            f'<img src="data:image/png;base64,{img_to_base64(img)}" class="framed-image">',
-            unsafe_allow_html=True
-        )
-        if hasattr(image_source, 'name'):
-            st.caption(f"📄 {image_source.name}")
+        st.markdown(f'<img src="data:image/png;base64,{img_to_base64(img)}" class="framed-image">', unsafe_allow_html=True)
 
-    # Kolom Hasil
     with col2:
         st.markdown('<div class="result-card"><h3 style="color:#2c3e50;">🎯 Hasil Prediksi</h3></div>', unsafe_allow_html=True)
         
@@ -253,25 +189,23 @@ if image_source is not None:
             confidence = float(probs[i] * 100)
             st.markdown(f"""
             <div class="prediction-item">
-                <div style="flex:1;">
+                <div>
                     <strong>🌸 #{i+1} {labels[i]}</strong>
                     <div class="confidence-bar">
                         <div class="confidence-fill" style="width:{confidence}%"></div>
                     </div>
                 </div>
-                <div style="font-size:1.35rem; font-weight:bold; min-width:70px; text-align:right;">
-                    {confidence:.1f}%
-                </div>
+                <div style="font-size:1.4rem; font-weight:bold;">{confidence:.1f}%</div>
             </div>
             """, unsafe_allow_html=True)
 
-        st.info("💡 Model menampilkan spesies dengan probabilitas tertinggi.")
+        st.info("💡 Model MobileNetV3 Large - Trained on 102 Flower Dataset")
 
 else:
     st.markdown("""
     <div style="text-align:center; padding:4rem 1rem; background:#f8f9fa; border-radius:20px; margin:2rem 0;">
-        <div style="font-size:5rem; margin-bottom:1rem;">🌸</div>
+        <div style="font-size:5.5rem; margin-bottom:1rem;">🌸</div>
         <h3>Siap mengidentifikasi bunga?</h3>
-        <p style="color:#6c757d;">Unggah gambar atau ambil foto di atas</p>
+        <p style="color:#6c757d;">Unggah gambar atau ambil foto di atas untuk memulai</p>
     </div>
     """, unsafe_allow_html=True)
