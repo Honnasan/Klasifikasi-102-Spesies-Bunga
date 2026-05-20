@@ -18,7 +18,10 @@ with open('label_map.json', 'r') as f:
 
 # ======= Load Model =======
 model = models.mobilenet_v3_large(pretrained=False)
-model.classifier[1] = torch.nn.Linear(model.last_channel, 102)
+
+in_features = model.classifier[3].in_features
+model.classifier[3] = torch.nn.Linear(in_features, 102)
+
 model.load_state_dict(torch.load(model_path, map_location=device))
 model = model.to(device)
 model.eval()
